@@ -14,6 +14,7 @@ const ecc = require('./crypto/ecc.js');
 const sha256 = require('./crypto/sha256.js');
 const dsa = require('./crypto/dsa.js');
 const hill = require('./crypto/hill_cipher.js');
+const dh = require('./crypto/dh.js');
 
 let eccEncrypted = null;
 
@@ -91,19 +92,21 @@ app.post('/sha-generate', jsonParser, async (req, res) => {
 
     const hash = sha256.generateHash(req.body.message);
 
-    res.json({ message: `${req.body.message} - hash: ${hash}` });
+    res.json({ message: `${req.body.message} - 🔑 hash: ${hash}` });
 });
 
 // DSA Generate
 app.post('/dsa-generate', jsonParser, async (req, res) => {
     console.log('dsa-generate');
 
+    console.log(req.body.message);
+
     const signature = dsa.signature(req.body.message);
 
     res.json({ message: `${req.body.message} - ${signature}` });
 });
 
-// DSA Generate
+// Hill Cipher
 app.post('/hill-encrypt', jsonParser, async (req, res) => {
     console.log('hill-encrypt');
 
@@ -118,6 +121,23 @@ app.post('/hill-decrypt', jsonParser, async (req, res) => {
     const decrypted = hill.decrypt(req.body.message, req.body.key);
 
     res.json({ message: decrypted });
+});
+
+// DH Keys
+app.post('/dh-share', jsonParser, async (req, res) => {
+    console.log('dh-share');
+
+    const key = dh.generateKey();
+
+    res.json({ message: key });
+});
+
+app.post('/dh-compute', jsonParser, async (req, res) => {
+    console.log('dh-compute');
+
+    const secret = dh.computeSecret(req.body.message);
+
+    res.json({ message: secret });
 });
 
 http.listen(PORT, () => {
